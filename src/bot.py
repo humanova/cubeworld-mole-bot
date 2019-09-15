@@ -25,6 +25,11 @@ mole_advice_keywords = ['mole', 'advice', ':bruh:']
 Client = discord.Client()
 client = commands.Bot(command_prefix="!")
 
+def isCountMod(user):
+    if 'Count Mod' in [y.name for y in user.roles]:
+        return True
+    return False
+
 
 @client.event
 async def on_ready():
@@ -93,20 +98,35 @@ async def on_message(message):
 @client.event
 async def on_message_delete(message):
 
-    # notify deleted messages in #counting
-    if message.channel.id == c_channel_id:
+    if not message.server == None:
 
-        is_count_mod = False
-        if 'Count Mod' in [y.name for y in message.author.roles]:
-            is_count_mod = True
+        # notify deleted messages in #counting
+        if message.channel.id == c_channel_id:
 
-        embed = discord.Embed(title="Delete Notification", color=0xe5e500)
-        embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-        embed.add_field(name="Author", value=f"<@{message.author.id}>", inline=False)
-        embed.add_field(name="Message", value=message.content, inline=False)
-        embed.set_footer(text=f"Is Count Mod : {str(is_count_mod)}")
+            embed = discord.Embed(title="Delete Notification", color=0xe5e500)
+            embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
+            embed.add_field(name="Author", value=f"<@{message.author.id}>", inline=False)
+            embed.add_field(name="Message", value=message.content, inline=False)
+            embed.set_footer(text=f"Is Count Mod : {str(isCountMod(message.author))}")
 
-        await client.send_message(discord.Object(id=cm_channel_id), embed=embed)
+            await client.send_message(discord.Object(id=cm_channel_id), embed=embed)
+
+@client.event
+async def on_message_edit(old_message, message):
+
+    if not message.server == None:
+
+        # notify count mods in case of message edit in #counting
+        if message.channel.id == c_channel_id:
+
+            embed = discord.Embed(title="Edit Notification", color=0xe5e500)
+            embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
+            embed.add_field(name="Author", value=f"<@{message.author.id}>", inline=False)
+            embed.add_field(name="Old Message", value=old_message.content, inline=False)
+            embed.add_field(name="New Message", value=message.content, inline=False)
+            embed.set_footer(text=f"Is Count Mod : {str(isCountMod(message.author))}")
+
+            await client.send_message(discord.Object(id=cm_channel_id), embed=embed)
 
 token = os.environ['BOT_TOKEN']
 client.run(token)
