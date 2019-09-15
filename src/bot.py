@@ -14,6 +14,8 @@ from discord.ext.commands import Bot
 import env_set
 env_set._set()
 
+import mole_word
+
 cm_channel_id = '622529718612262933'
 c_channel_id = '493837739616108566'
 mole_advice_keywords = ['mole', 'advice', ':bruh:']
@@ -86,7 +88,7 @@ async def on_message(message):
         # random mole advice
         if all(keyword in message.content for keyword in mole_advice_keywords):
             # placeholder quote for now
-            await client.send_message(message.channel, "Life is just a stream of :bruh: moments.")
+            await client.send_message(message.channel, mole_word.GetRandomMoleWords())
 
 
 @client.event
