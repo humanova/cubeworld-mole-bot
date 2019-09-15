@@ -83,12 +83,11 @@ async def on_message(message):
                 # no need to notify the channel ?..
 
     # mod specific commands
-    if 'Discord Server Mods' in [y.name for y in message.author.roles]:
-
-        # random mole advice
-        if all(keyword in message.content for keyword in mole_advice_keywords):
-            # placeholder quote for now
-            await client.send_message(message.channel, mole_word.GetRandomMoleWords())
+    if not message.server == None:
+        if 'Discord Server Mods' in [y.name for y in message.author.roles]:
+            # random mole advice
+            if all(keyword in message.content for keyword in mole_advice_keywords):
+                await client.send_message(message.channel, mole_word.GetRandomMoleWords())
 
 
 @client.event
