@@ -1,10 +1,10 @@
 import codecs
 import random
 
-emo_refs = {"bruh"        : "<bruh:622591578627637250>",
-            "hyperBruh"   : "<hyperBruh:622559890916900874>",
-            "weirdBruh"   : "<weirdBruh:614530140906717192>",
-            "bruhTopHat"  : "<bruhTopHat:620980170907582474>",
+emo_refs = {"bruh"        : "<:bruh:595938000022667265>",
+            "hyperBruh"   : "<:hyperBruh:622559890916900874>",
+            "weirdBruh"   : "<:weirdBruh:614530140906717192>",
+            "bruhTopHat"  : "<:bruhTopHat:620980170907582474>",
             }
 
 
@@ -22,5 +22,5 @@ def GetRandomMoleWords():
     f = codecs.open("mole-words.txt", "r")
     lines = f.readlines()
     f.close()
-
+    
     return FixEmoRefs(random.choice(lines))
