@@ -98,7 +98,7 @@ async def on_message(message):
 @client.event
 async def on_message_delete(message):
 
-    if not message.server == None:
+    if not message.author.bot and not message.server == None:
 
         # notify deleted messages in #counting
         if message.channel.id == c_channel_id:
@@ -114,7 +114,7 @@ async def on_message_delete(message):
 @client.event
 async def on_message_edit(old_message, message):
 
-    if not message.server == None:
+    if not message.author.bot and not message.server == None:
 
         # notify count mods in case of message edit in #counting
         if message.channel.id == c_channel_id:
