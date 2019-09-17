@@ -96,7 +96,7 @@ async def on_message(message):
                     await client.send_message(message.channel, mole_word.GetRandomMoleWords())
         except Exception as e:
             print(e)
-            print("mole advice exception msg : {message.content} , author : {message.author.name}#{message.author.discriminator}, id : {message.author.id}")
+            print(f"mole advice exception msg : {message.content} , author : {message.author.name}#{message.author.discriminator}, id : {message.author.id}")
 
 
 @client.event
