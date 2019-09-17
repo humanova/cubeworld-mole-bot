@@ -39,7 +39,7 @@ async def on_ready():
 @client.event
 async def on_message(message):
 
-    if message.channel.id == cm_channel_id:
+    if not message.author.bot and message.channel.id == cm_channel_id:
 
         if message.content.startswith("!cc "):
 
