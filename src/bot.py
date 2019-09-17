@@ -89,10 +89,14 @@ async def on_message(message):
 
     # mod specific commands
     if not message.server == None:
-        if 'Discord Server Mods' in [y.name for y in message.author.roles]:
-            # random mole advice
-            if all(keyword in message.content for keyword in mole_advice_keywords):
-                await client.send_message(message.channel, mole_word.GetRandomMoleWords())
+        try:
+            if 'Discord Server Mods' in [y.name for y in message.author.roles]:
+                # random mole advice
+                if all(keyword in message.content for keyword in mole_advice_keywords):
+                    await client.send_message(message.channel, mole_word.GetRandomMoleWords())
+        except Exception as e:
+            print(e)
+            print("mole advice exception msg : {message.content} , author : {message.author.name}#{message.author.discriminator}, id : {message.author.id}")
 
 
 @client.event
