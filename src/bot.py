@@ -63,6 +63,7 @@ async def on_message(message):
                     embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
                     await client.send_message(message.channel, embed=embed)
 
+
             # get user from user_id
             elif len(msg) == 2:
                 try:
@@ -89,12 +90,13 @@ async def on_message(message):
                 print(f"Command '{message.content}' has more than 1 argument.")
                 # no need to notify the channel ?..
 
+
         # !croom name @mentions -- create room
         if message.content.startswith("!croom ") and message.author.server_permissions.manage_channels:
 
             msg = message.content.split(" ")
             if len(message.mentions) > 0:
-                chan_name = msg[1]
+                chan_name = f"temp-{msg[1]}"
                 
                 chan_role = await client.create_role(message.server, name=chan_name)
                 for member in message.mentions:
@@ -102,27 +104,41 @@ async def on_message(message):
                 
                 bot_role = get(message.server.roles, name="CountMasterMole")
                 mod_role = get(message.server.roles, name="Discord Server Mods")
-                def_role = get(message.server.roles, name="Verified")
+                def_role = get(message.server.roles, name="@everyone")
+                
 
                 overwrites = [
                     (def_role, discord.PermissionOverwrite(read_messages=False)),
-                    (bot_role, discord.PermissionOverwrite(read_messages=True)),
-                    (mod_role, discord.PermissionOverwrite(read_messages=True)),
-                    (chan_role, discord.PermissionOverwrite(read_messages=True))
+                    (bot_role, discord.PermissionOverwrite(read_messages=True, send_messages=True)),
+                    (mod_role, discord.PermissionOverwrite(read_messages=True, send_messages=True)),
+                    (chan_role, discord.PermissionOverwrite(read_messages=True, send_messages=True))
                 ]
 
+                channel = None
                 try:
-                    await client.create_channel(message.server, chan_name, overwrites[0], overwrites[1], overwrites[2], overwrites[3], type=discord.ChannelType.private)
+                    channel = await client.create_channel(message.server, chan_name, overwrites[0], overwrites[1], overwrites[2], overwrites[3])
                 except Exception as e:
                     print(f"error while creating channel named : {chan_name}")
                     print(e)
 
+                if not channel == None:
+                    embed = discord.Embed(title="Temporary Room", color=0x75df00)
+                    embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
+                    embed.add_field(name="Creator", value=f"<@{message.author.id}>", inline=False)
+                    embed.add_field(name="Room Name", value=chan_name, inline=True)
+                    embed.add_field(name="Command", value=message.content, inline=False)
+
+                    await client.send_message(channel, embed=embed)
+
+
         # !droom -- delete room
         if message.content == "!droom" and message.author.server_permissions.manage_channels:
-            
-            await client.delete_role(message.server, get(message.server.roles, name=message.channel.name))
-            await client.delete_channel(message.channel)
+            if message.channel.name.startswith("temp-"):
+                await client.delete_role(message.server, get(message.server.roles, name=message.channel.name))
+                await client.delete_channel(message.channel)
         
+
+
         # !addroom @mentions -- add mentioned members to room
         if message.content.startswith("!addroom ") and message.author.server_permissions.manage_channels:
             msg = message.content.split(" ")
@@ -133,6 +149,7 @@ async def on_message(message):
 
                 for member in message.mentions:
                     await client.add_roles(member, role)
+
 
         # !removeroom @mentions -- remove mentioned members from room
         if message.content.startswith("!removeroom ") and message.author.server_permissions.manage_channels:
@@ -145,18 +162,29 @@ async def on_message(message):
                 for member in message.mentions:
                     await client.remove_roles(member, role)
 
+
     # mod specific commands
     if not message.server == None and not message.author.bot:
         try:
             if 'Discord Server Mods' in [y.name for y in message.author.roles]:
+
+                if message.content == "!cmds":
+                    embed = discord.Embed(title="Commands", color=0xe5e500)
+                    embed.add_field(name="!cc", value="`!cc @user/userid` : give Can't Count role to user")
+                    embed.add_field(name="!croom", value="`!croom room-name @mentions` : create a temp room and add mentioned")
+                    embed.add_field(name="!droom", value="`!droom` : delete current temp room")
+                    embed.add_field(name="!addroom", value="`!addroom @mentioned` : add mentioned user to current room")
+                    embed.add_field(name="!removeroom", value="`!remove @mentioned` : remove mentioned user from current room")
+                    embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
+                    await client.send_message(message.channel, embed=embed)
+
                 # random mole advice
                 if all(keyword in message.content for keyword in mole_advice_keywords):
                     await client.send_message(message.channel, mole_word.GetRandomMoleWords())
+
         except Exception as e:
             print(e)
-            print(f"mole advice exception msg : {message.content} , author : {message.author.name}#{message.author.discriminator}, id : {message.author.id}")
-            print(f"channel-name : {message.channel.name}")
-
+    
 
 @client.event
 async def on_message_delete(message):
@@ -173,6 +201,7 @@ async def on_message_delete(message):
             embed.set_footer(text=f"Is Count Mod : {str(isCountMod(message.author))}")
 
             await client.send_message(discord.Object(id=cm_channel_id), embed=embed)
+
 
 @client.event
 async def on_message_edit(old_message, message):
