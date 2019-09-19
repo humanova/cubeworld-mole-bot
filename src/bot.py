@@ -88,7 +88,7 @@ async def on_message(message):
                 # no need to notify the channel ?..
 
     # mod specific commands
-    if not message.server == None:
+    if not message.server == None and not message.author.bot:
         try:
             if 'Discord Server Mods' in [y.name for y in message.author.roles]:
                 # random mole advice
