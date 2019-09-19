@@ -97,6 +97,7 @@ async def on_message(message):
         except Exception as e:
             print(e)
             print(f"mole advice exception msg : {message.content} , author : {message.author.name}#{message.author.discriminator}, id : {message.author.id}")
+            print(f"channel-name : {message.channel.name}")
 
 
 @client.event
