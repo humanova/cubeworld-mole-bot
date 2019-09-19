@@ -10,6 +10,7 @@ import datetime
 import discord
 from discord.ext import commands
 from discord.ext.commands import Bot
+from discord.utils import get
 
 import env_set
 env_set._set()
@@ -39,9 +40,10 @@ async def on_ready():
 @client.event
 async def on_message(message):
 
-    if not message.author.bot and message.channel.id == cm_channel_id:
-
-        if message.content.startswith("!cc "):
+    if not message.author.bot:
+        
+        # CC command
+        if message.content.startswith("!cc ") and message.channel.id == cm_channel_id:
 
             msg = message.content.split(" ")
             role = discord.utils.get(message.server.roles, name="Can't Count")
@@ -86,6 +88,62 @@ async def on_message(message):
             else:
                 print(f"Command '{message.content}' has more than 1 argument.")
                 # no need to notify the channel ?..
+
+        # !croom name @mentions -- create room
+        if message.content.startswith("!croom ") and message.author.server_permissions.manage_channels:
+
+            msg = message.content.split(" ")
+            if len(message.mentions) > 0:
+                chan_name = msg[1]
+                
+                chan_role = await client.create_role(message.server, name=chan_name)
+                for member in message.mentions:
+                    await client.add_roles(member, chan_role)
+                
+                bot_role = get(message.server.roles, name="CountMasterMole")
+                mod_role = get(message.server.roles, name="Discord Server Mods")
+                def_role = get(message.server.roles, name="Verified")
+
+                overwrites = [
+                    (def_role, discord.PermissionOverwrite(read_messages=False)),
+                    (bot_role, discord.PermissionOverwrite(read_messages=True)),
+                    (mod_role, discord.PermissionOverwrite(read_messages=True)),
+                    (chan_role, discord.PermissionOverwrite(read_messages=True))
+                ]
+
+                try:
+                    await client.create_channel(message.server, chan_name, overwrites[0], overwrites[1], overwrites[2], overwrites[3], type=discord.ChannelType.private)
+                except Exception as e:
+                    print(f"error while creating channel named : {chan_name}")
+                    print(e)
+
+        # !droom -- delete room
+        if message.content == "!droom" and message.author.server_permissions.manage_channels:
+            
+            await client.delete_role(message.server, get(message.server.roles, name=message.channel.name))
+            await client.delete_channel(message.channel)
+        
+        # !addroom @mentions -- add mentioned members to room
+        if message.content.startswith("!addroom ") and message.author.server_permissions.manage_channels:
+            msg = message.content.split(" ")
+
+            if len(message.mentions) > 0:
+                role_name = message.channel.name
+                role = get(message.server.roles, name=role_name)
+
+                for member in message.mentions:
+                    await client.add_roles(member, role)
+
+        # !removeroom @mentions -- remove mentioned members from room
+        if message.content.startswith("!removeroom ") and message.author.server_permissions.manage_channels:
+            msg = message.content.split(" ")
+
+            if len(message.mentions) > 0:
+                role_name = message.channel.name
+                role = get(message.server.roles, name=role_name)
+
+                for member in message.mentions:
+                    await client.remove_roles(member, role)
 
     # mod specific commands
     if not message.server == None and not message.author.bot:
