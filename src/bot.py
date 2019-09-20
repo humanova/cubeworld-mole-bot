@@ -59,7 +59,8 @@ async def on_message(message):
                     await client.send_message(message.channel, embed=embed)
 
                 except Exception as e:
-                    embed = discord.Embed(title=" ", description=f"Error while CC'ing <@{user.id}>\n```{e}```", color=0xFF0000)
+                    print(e)
+                    embed = discord.Embed(title=" ", description=f"Error while CC'ing <@{user.id}>", color=0xFF0000)
                     embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
                     await client.send_message(message.channel, embed=embed)
 
@@ -77,7 +78,8 @@ async def on_message(message):
                         await client.send_message(message.channel, embed=embed)
 
                     except Exception as e:
-                        embed = discord.Embed(title=" ", description=f"Error while CC'ing <@{user.id}>\n```{e}```", color=0xFF0000)
+                        print(e)
+                        embed = discord.Embed(title=" ", description=f"Error while CC'ing <@{user.id}>", color=0xFF0000)
                         embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
                         await client.send_message(message.channel, embed=embed)
                 except:
