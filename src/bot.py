@@ -174,7 +174,7 @@ async def on_message(message):
                     embed.add_field(name="croom", value="`!croom room-name @mentions` : create a temp room and add mentioned")
                     embed.add_field(name="droom", value="`!droom` : delete current temp room")
                     embed.add_field(name="addroom", value="`!addroom @mentioned` : add mentioned user to current room")
-                    embed.add_field(name="removeroom", value="`!remove @mentioned` : remove mentioned user from current room")
+                    embed.add_field(name="removeroom", value="`!removeroom @mentioned` : remove mentioned user from current room")
                     embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
                     await client.send_message(message.channel, embed=embed)
 
