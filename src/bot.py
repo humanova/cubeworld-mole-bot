@@ -1,6 +1,6 @@
 # 2019 Emir Erbasan (humanova)
 
-# Counting channel moderation bot for r/CubeWorld Server
+# bot for r/CubeWorld Server
 # discord.gg/cubeworld
 
 import asyncio
@@ -15,11 +15,8 @@ from discord.utils import get
 import env_set
 env_set._set()
 
-import mole_word
-
 cm_channel_id = '622529718612262933'
 c_channel_id = '493837739616108566'
-mole_advice_keywords = ['mole', 'advice', ':bruh:']
 
 ################################
 
@@ -42,6 +39,20 @@ async def on_message(message):
 
     if not message.author.bot:
         
+        # tweet role mention command
+        if message.content == "!tweet" and message.author.server_permissions.manage_roles:
+            
+            role = get(message.server.roles, name="Tweets")
+            # set tweets role mentionable then mention ppl
+            try:
+                await client.edit_role(server=message.server, role=role, mentionable=True)
+                await client.send_message(message.channel, f"<@&{role.id}>")
+            except Exception as e:
+                print("error while mentioning tweet role")
+                print(e)
+            
+            await client.edit_role(server=message.server, role=role, mentionable=False)
+
         # CC command
         if message.content.startswith("!cc ") and message.channel.id == cm_channel_id:
 
@@ -179,10 +190,6 @@ async def on_message(message):
                     embed.add_field(name="removeroom", value="`!removeroom @mentioned` : remove mentioned user from current room")
                     embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
                     await client.send_message(message.channel, embed=embed)
-
-                # random mole advice
-                if all(keyword in message.content for keyword in mole_advice_keywords):
-                    await client.send_message(message.channel, mole_word.GetRandomMoleWords())
 
         except Exception as e:
             print(e)
