@@ -52,6 +52,7 @@ async def on_message(message):
                 print(e)
             
             await client.edit_role(server=message.server, role=role, mentionable=False)
+            await client.delete_message(message)
 
         # CC command
         if message.content.startswith("!cc ") and message.channel.id == cm_channel_id:
