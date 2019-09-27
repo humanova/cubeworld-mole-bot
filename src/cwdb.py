@@ -35,7 +35,14 @@ class cwdb():
                 'uncc_timestamp' : uncc_timestamp
                 })
         else:
+            
+            cc_count = q_res[0]['ccCount']
+            uncc_days = 7 + (7 * (cc_count - 1)) # f(x) =  7 + (7 * (x-1))
 
+            uncc_datetime = datetime.datetime.now() + datetime.timedelta(days=uncc_days)
+            uncc_date = uncc_datetime.strftime("%c")
+            uncc_timestamp = uncc_datetime.timestamp()
+            
             self.cc_table.upsert({
                 'userid' : userid,
                 'username' : username,
