@@ -29,6 +29,7 @@ class cwdb():
                 'username' : username,
                 'isCC' : True,
                 'ccCount' : 1,
+                'penaltyDays' : 7,
                 'cc_date' : cc_date,
                 'uncc_date' : uncc_date,
                 'cc_timestamp' : cc_timestamp,
@@ -42,22 +43,27 @@ class cwdb():
             uncc_datetime = datetime.datetime.now() + datetime.timedelta(days=uncc_days)
             uncc_date = uncc_datetime.strftime("%c")
             uncc_timestamp = uncc_datetime.timestamp()
-            
+
             self.cc_table.upsert({
                 'userid' : userid,
                 'username' : username,
                 'isCC' : True,
                 'ccCount' : q_res[0]['ccCount'] + 1,
+                'penaltyDays' : uncc_days,
                 'cc_date' : cc_date,
                 'uncc_date' : uncc_date,
                 'cc_timestamp' : cc_timestamp,
                 'uncc_timestamp' : uncc_timestamp
                 }, User.userid == userid)
 
+        return self.cc_table.search(User.userid == userid)
+
     def unccUser(self, userid):
 
         User = tinydb.Query()
         self.cc_table.update(set('isCC', False), User.userid == userid)
+
+        return self.cc_table.search(User.userid == userid)
     
     def checkUncc(self):
 

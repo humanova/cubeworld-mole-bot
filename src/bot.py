@@ -93,9 +93,10 @@ async def on_message(message):
                 user = message.mentions[0]
                 try:
                     await client.add_roles(user, role)
-                    db.ccUser(user.id, user.name)
+                    db_user = db.ccUser(user.id, user.name)
+                    penalty_days = db_user['penaltyDays']
 
-                    embed = discord.Embed(title=" ", description=f"User <@{user.id}> successfully got CC'd.", color=0x75df00)
+                    embed = discord.Embed(title=" ", description=f"User <@{user.id}> successfully got CC'd. (Banned for `{penalty_days}` days)", color=0x75df00)
                     embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
                     await client.send_message(message.channel, embed=embed)
 
@@ -113,9 +114,10 @@ async def on_message(message):
                     user = discord.utils.get(message.server.members, id=user_id)
                     try:
                         await client.add_roles(user, role)
-                        db.ccUser(user.id, user.name)
+                        db_user = db.ccUser(user.id, user.name)
+                        penalty_days = db_user['penaltyDays']
 
-                        embed = discord.Embed(title=" ", description=f"User <@{user.id}> successfully got CC'd.", color=0x75df00)
+                        embed = discord.Embed(title=" ", description=f"User <@{user.id}> successfully got CC'd. (Banned for `{penalty_days}` days)", color=0x75df00)
                         embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
                         await client.send_message(message.channel, embed=embed)
 
