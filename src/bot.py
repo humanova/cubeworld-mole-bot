@@ -17,14 +17,10 @@ db = cwdb()
 import env_set
 env_set._set()
 
-#server_id = '171682573662027776'
-#cm_channel_id = '622529718612262933'
-#c_channel_id = '493837739616108566'
+server_id = '171682573662027776'
+cm_channel_id = '622529718612262933'
+c_channel_id = '493837739616108566'
 
-
-server_id = '469066333611622410'
-cm_channel_id = '469130513697734686'
-c_channel_id = '469130513697734686'
 ################################
 
 Client = discord.Client()
