@@ -12,9 +12,12 @@ from discord.ext import commands
 from discord.ext.commands import Bot
 from discord.utils import get
 
+from cwdb import cwdb
+db = cwdb()
 import env_set
 env_set._set()
 
+server_id = '171682573662027776'
 cm_channel_id = '622529718612262933'
 c_channel_id = '493837739616108566'
 
@@ -23,15 +26,40 @@ c_channel_id = '493837739616108566'
 Client = discord.Client()
 client = commands.Bot(command_prefix="!")
 
+
 def isCountMod(user):
     if 'Count Mod' in [y.name for y in user.roles]:
         return True
     return False
 
 
+async def checkCC():
+
+    server = client.get_server(server_id)
+    cc_role = discord.utils.get(server.roles, name="Can't Count")
+    while not client.is_closed:
+        print("checking uncc")
+        uncc_list = db.checkUncc()
+        print("uncc list : ", uncc_list)
+        if not len(uncc_list) == 0:
+            for userid in uncc_list:
+
+                user = discord.utils.get(server.members, id = userid)
+                await client.remove_roles(user, cc_role)
+
+                embed = discord.Embed(title=" ", description=f"User <@{user.id}> got UNCC'd. (7 days since cc)", color=0x75df00)
+                embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
+                await client.send_message(discord.Object(id=cm_channel_id), embed=embed)
+
+        # sleep for 1 hour
+        await asyncio.sleep(3600)
+
+
 @client.event
 async def on_ready():
+
     print("Logged in as %s." % (client.user.name))
+    await checkCC()
 
 
 @client.event
@@ -47,11 +75,11 @@ async def on_message(message):
             try:
                 await client.edit_role(server=message.server, role=role, mentionable=True)
                 await client.send_message(message.channel, f"<@&{role.id}>")
+                await client.edit_role(server=message.server, role=role, mentionable=False)
             except Exception as e:
                 print("error while mentioning tweet role")
                 print(e)
             
-            await client.edit_role(server=message.server, role=role, mentionable=False)
             await client.delete_message(message)
 
         # CC command
@@ -65,6 +93,7 @@ async def on_message(message):
                 user = message.mentions[0]
                 try:
                     await client.add_roles(user, role)
+                    db.ccUser(user.id, user.name)
 
                     embed = discord.Embed(title=" ", description=f"User <@{user.id}> successfully got CC'd.", color=0x75df00)
                     embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
@@ -84,6 +113,7 @@ async def on_message(message):
                     user = discord.utils.get(message.server.members, id=user_id)
                     try:
                         await client.add_roles(user, role)
+                        db.ccUser(user.id, user.name)
 
                         embed = discord.Embed(title=" ", description=f"User <@{user.id}> successfully got CC'd.", color=0x75df00)
                         embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
@@ -189,6 +219,7 @@ async def on_message(message):
                     embed.add_field(name="droom", value="`!droom` : delete current temp room")
                     embed.add_field(name="addroom", value="`!addroom @mentioned` : add mentioned user to current room")
                     embed.add_field(name="removeroom", value="`!removeroom @mentioned` : remove mentioned user from current room")
+                    embed.add_field(name="tweet", value="`!tweet` : mention Tweets role")
                     embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
                     await client.send_message(message.channel, embed=embed)
 
