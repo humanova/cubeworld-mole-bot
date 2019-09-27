@@ -17,10 +17,14 @@ db = cwdb()
 import env_set
 env_set._set()
 
-server_id = '171682573662027776'
-cm_channel_id = '622529718612262933'
-c_channel_id = '493837739616108566'
+#server_id = '171682573662027776'
+#cm_channel_id = '622529718612262933'
+#c_channel_id = '493837739616108566'
 
+
+server_id = '469066333611622410'
+cm_channel_id = '469130513697734686'
+c_channel_id = '469130513697734686'
 ################################
 
 Client = discord.Client()
@@ -38,9 +42,7 @@ async def checkCC():
     server = client.get_server(server_id)
     cc_role = discord.utils.get(server.roles, name="Can't Count")
     while not client.is_closed:
-        print("checking uncc")
         uncc_list = db.checkUncc()
-        print("uncc list : ", uncc_list)
         if not len(uncc_list) == 0:
             for userid in uncc_list:
 
@@ -96,7 +98,7 @@ async def on_message(message):
                     db_user = db.ccUser(user.id, user.name)
                     penalty_days = db_user['penaltyDays']
 
-                    embed = discord.Embed(title=" ", description=f"User <@{user.id}> successfully got CC'd. (Banned for `{penalty_days}` days)", color=0x75df00)
+                    embed = discord.Embed(title=" ", description=f"User <@{user.id}> successfully got CC'd. (Banned for `{penalty_days} days`)", color=0x75df00)
                     embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
                     await client.send_message(message.channel, embed=embed)
 

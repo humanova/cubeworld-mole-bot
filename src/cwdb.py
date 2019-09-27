@@ -56,14 +56,14 @@ class cwdb():
                 'uncc_timestamp' : uncc_timestamp
                 }, User.userid == userid)
 
-        return self.cc_table.search(User.userid == userid)
+        return self.cc_table.search(User.userid == userid)[0]
 
     def unccUser(self, userid):
 
         User = tinydb.Query()
         self.cc_table.update(set('isCC', False), User.userid == userid)
 
-        return self.cc_table.search(User.userid == userid)
+        return self.cc_table.search(User.userid == userid)[0]
     
     def checkUncc(self):
 
