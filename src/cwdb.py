@@ -126,7 +126,7 @@ class cwdb():
          
         print(f"{len(members)} users got CC'd with !ccupdate command")
 
-        return members
+        return noncc_members
 
     def getCCTable(self):
 
