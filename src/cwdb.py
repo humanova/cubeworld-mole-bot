@@ -106,15 +106,24 @@ class cwdb():
         User = tinydb.Query()
         q_res = self.cc_table.search(User.isCC == True)
 
+        noncc_members = members
         # remove members that already are in database
-        for mem in members:
+        for idx, mem in enumerate(members):
             for db_user in q_res:
                 if db_user['userid'] == mem.id:
-                    members.remove(mem)
-            
-        for mem in members:
+                    noncc_members.pop(idx)
+
+        # cc not cc'ed(in db) members
+        for mem in noncc_members:
             self.ccUser(mem.id, mem.name)
         
+        # uncc not cc'ed(in db) member
+        cc_members = [m.id for m in members]
+        cc_members_db = [u['userid'] for u in q_res]
+        for m_id in cc_members_db:
+            if not m_id in cc_members:
+                self.unccUser(m_id)
+         
         print(f"{len(members)} users got CC'd with !ccupdate command")
 
         return members
