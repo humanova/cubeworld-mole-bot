@@ -113,7 +113,7 @@ class cwdb():
                     members.remove(mem)
             
         for mem in members:
-            self.ccUser(mem.id, mem.username)
+            self.ccUser(mem.id, mem.name)
         
         print(f"{len(members)} users got CC'd with !ccupdate command")
 

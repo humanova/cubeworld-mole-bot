@@ -72,7 +72,7 @@ async def updateCCDatabase():
 
     cc_log = f"```\n{len(cc_members)} users are updated.\n\n"
     for mem in cc_members:
-        cc_log += f"{mem.id}, {mem.username}#{mem.discriminator} -- 7 days\n"
+        cc_log += f"{mem.id}, {mem.name}#{mem.discriminator} -- 7 days\n"
     cc_log += "```"
 
     await send_long_msg(discord.Object(id=cm_channel_id), cc_log)
