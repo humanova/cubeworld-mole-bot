@@ -12,6 +12,8 @@ from discord.ext import commands
 from discord.ext.commands import Bot
 from discord.utils import get
 
+import hastebin
+
 from cwdb import cwdb
 db = cwdb()
 import env_set
@@ -70,12 +72,11 @@ async def updateCCDatabase():
     
     cc_members = db.updateCCTable(cc_members)
 
-    cc_log = f"```\n{len(cc_members)} users are updated.\n\n"
+    cc_log = f"{len(cc_members)} users are updated.\n\n"
     for mem in cc_members:
         cc_log += f"{mem.id}, {mem.name}#{mem.discriminator} -- 7 days\n"
-    cc_log += "```"
 
-    await send_long_msg(discord.Object(id=cm_channel_id), cc_log)
+    return cc_log
     
 
 @client.event
@@ -162,11 +163,22 @@ async def on_message(message):
         if message.content == "!cclist" and message.channel.id == cm_channel_id:
             
             table = db.getCCTable()
-            await client.send_message(message.channel, f"```{table}```")
+            table_url = await hastebin.post(table)
+
+            embed = discord.Embed(title=" ", description=f"Current CC Table : {table_url}", color=0xe5e500)
+            embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
+
+            await client.send_message(message.channel, embed=embed)
 
         if message.content == "!ccupdate" and message.channel.id == cm_channel_id:
 
-            await updateCCDatabase()
+            cc_log = await updateCCDatabase()
+            log_url = await hastebin.post(cc_log)
+            
+            embed = discord.Embed(title=" ", description=f"CC Table Update : {log_url}", color=0xe5e500)
+            embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
+
+            await client.send_message(message.channel, embed=embed)
 
         # !croom name @mentions -- create room
         if message.content.startswith("!croom ") and message.author.server_permissions.manage_channels:
