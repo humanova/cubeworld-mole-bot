@@ -3,6 +3,7 @@
 import tinydb
 from tinydb.operations import increment, set
 import datetime
+from tabulate import tabulate
 
 class cwdb():
 
@@ -65,6 +66,19 @@ class cwdb():
 
         return self.cc_table.search(User.userid == userid)[0]
     
+    def getCCTimeLeft(self, userid):
+
+        User = tinydb.Query()
+        user = self.cc_table.search(User.userid == userid)[0]
+
+        now = datetime.datetime.now()
+        end_date = datetime.datetime.fromtimestamp(int(user['uncc_timestamp']))
+
+        td = end_date - now
+        diff = td.days, td.seconds // 3600, (td.seconds // 60) % 60
+        
+        return diff
+
     def checkUncc(self):
 
         User = tinydb.Query()
@@ -81,3 +95,25 @@ class cwdb():
                 self.unccUser(mem['userid'])
 
         return uncc_list
+
+    def getCCTable(self):
+
+        User = tinydb.Query()
+        q_res = self.cc_table.search(User.isCC == True)
+
+        cc_users = [[0 for x in range(3)] for y in range(len(q_res))] 
+        for idx, mem in enumerate(q_res):
+
+            diff = self.getCCTimeLeft(mem['userid'])
+            time_left_str = f"{diff[0]}d {diff[1]}h"
+
+            user = []
+            cc_users[idx][0] = mem['userid']
+            cc_users[idx][1] = mem['username']
+            cc_users[idx][2] = time_left_str
+
+            cc_users.append(user)
+        
+        table = tabulate(cc_users, ["userid", "username", "time_left"], tablefmt="ortabgtbl")
+
+        return table

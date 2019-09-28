@@ -134,6 +134,10 @@ async def on_message(message):
                 print(f"Command '{message.content}' has more than 1 argument.")
                 # no need to notify the channel ?..
 
+        if message.content == "!cclist"  and message.channel.id == cm_channel_id:
+            
+            table = db.getCCTable()
+            await client.send_message(message.channel, table)
 
         # !croom name @mentions -- create room
         if message.content.startswith("!croom ") and message.author.server_permissions.manage_channels:
@@ -215,6 +219,7 @@ async def on_message(message):
                 if message.content == "!cmds":
                     embed = discord.Embed(title="Commands", color=0xe5e500)
                     embed.add_field(name="cc", value="`!cc @user/userid` : give Can't Count role to user")
+                    embed.add_field(name="cclist", value="`!cclist` : sends a list of CC'd users")
                     embed.add_field(name="croom", value="`!croom room-name @mentions` : create a temp room and add mentioned")
                     embed.add_field(name="droom", value="`!droom` : delete current temp room")
                     embed.add_field(name="addroom", value="`!addroom @mentioned` : add mentioned user to current room")
