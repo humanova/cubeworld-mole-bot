@@ -11,6 +11,7 @@ class cwdb():
 
         self.cc_table = tinydb.TinyDB('db/cc-database.json')
 
+
     def ccUser(self, userid, username):
         
         User = tinydb.Query()
@@ -59,6 +60,7 @@ class cwdb():
 
         return self.cc_table.search(User.userid == userid)[0]
 
+
     def unccUser(self, userid):
 
         User = tinydb.Query()
@@ -66,6 +68,7 @@ class cwdb():
 
         return self.cc_table.search(User.userid == userid)[0]
     
+
     def getCCTimeLeft(self, userid):
 
         User = tinydb.Query()
@@ -78,6 +81,7 @@ class cwdb():
         diff = td.days, td.seconds // 3600, (td.seconds // 60) % 60
         
         return diff
+
 
     def checkUncc(self):
 
@@ -95,6 +99,25 @@ class cwdb():
                 self.unccUser(mem['userid'])
 
         return uncc_list
+
+
+    def updateCCTable(self, members):
+
+        User = tinydb.Query()
+        q_res = self.cc_table.search(User.isCC == True)
+
+        # remove members that already are in database
+        for mem in members:
+            for db_user in q_res:
+                if db_user['userid'] == mem.id:
+                    members.remove(mem)
+            
+        for mem in members:
+            self.ccUser(mem.id, mem.username)
+        
+        print(f"{len(members)} users got CC'd with !ccupdate command")
+
+        return members
 
     def getCCTable(self):
 

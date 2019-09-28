@@ -27,6 +27,12 @@ Client = discord.Client()
 client = commands.Bot(command_prefix="!")
 
 
+async def send_long_msg(ch, msg):
+
+    for chunk in [msg[i:i+2000] for i in range(0, len(msg), 2000)]:
+        await client.send_message(ch, chunk)
+
+
 def isCountMod(user):
     if 'Count Mod' in [y.name for y in user.roles]:
         return True
@@ -52,6 +58,25 @@ async def checkCC():
         # sleep for 1 hour
         await asyncio.sleep(3600)
 
+
+async def updateCCDatabase():
+
+    server = client.get_server(server_id)
+    cc_members = []
+
+    for member in server.members:
+        if "Can't Count" in [y.name for y in member.roles]:
+            cc_members.append(member)
+    
+    cc_members = db.updateCCTable(cc_members)
+
+    cc_log = f"```\n{len(cc_members)} users are updated.\n\n"
+    for mem in cc_members:
+        cc_log += f"{mem.id}, {mem.username}#{mem.discriminator} -- 7 days\n"
+    cc_log += "```"
+
+    await send_long_msg(discord.Object(id=cm_channel_id), cc_log)
+    
 
 @client.event
 async def on_ready():
@@ -134,10 +159,14 @@ async def on_message(message):
                 print(f"Command '{message.content}' has more than 1 argument.")
                 # no need to notify the channel ?..
 
-        if message.content == "!cclist"  and message.channel.id == cm_channel_id:
+        if message.content == "!cclist" and message.channel.id == cm_channel_id:
             
             table = db.getCCTable()
             await client.send_message(message.channel, f"```{table}```")
+
+        if message.content == "!ccupdate" and message.channel.id == cm_channel_id:
+
+            await updateCCDatabase()
 
         # !croom name @mentions -- create room
         if message.content.startswith("!croom ") and message.author.server_permissions.manage_channels:
