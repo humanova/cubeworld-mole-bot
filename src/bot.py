@@ -137,7 +137,7 @@ async def on_message(message):
         if message.content == "!cclist"  and message.channel.id == cm_channel_id:
             
             table = db.getCCTable()
-            await client.send_message(message.channel, table)
+            await client.send_message(message.channel, f"```{table}```")
 
         # !croom name @mentions -- create room
         if message.content.startswith("!croom ") and message.author.server_permissions.manage_channels:
