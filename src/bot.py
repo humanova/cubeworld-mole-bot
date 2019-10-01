@@ -74,7 +74,7 @@ async def updateCCDatabase():
 
     cc_log = f"{len(cc_members)} users are updated.\n\n"
     for mem in cc_members:
-        cc_log += f"{mem.id}, {mem.name}#{mem.discriminator} -- 7 days\n"
+        cc_log += f"{mem.id}, {mem.name}#{mem.discriminator}\n"
 
     return cc_log
     
@@ -272,6 +272,21 @@ async def on_message(message):
         except Exception as e:
             print(e)
     
+
+@client.event
+async def on_member_join(member):
+
+    if member.server.id == server_id and not member.bot:
+
+        if db.isCC(member.id):
+
+            db_user = db.ccUser(member.id, member.name)
+            penalty_days = db_user['penaltyDays']
+
+            embed = discord.Embed(title=" ", description=f"[REJOINED SERVER] User <@{member.id}> successfully got CC'd. (Banned for `{penalty_days}` days)", color=0x75df00)
+            embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
+            await client.send_message(discord.Object(id=cm_channel_id), embed=embed)
+
 
 @client.event
 async def on_message_delete(message):

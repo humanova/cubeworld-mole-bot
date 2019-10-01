@@ -40,7 +40,7 @@ class cwdb():
         else:
             
             cc_count = q_res[0]['ccCount']
-            uncc_days = 7 + (7 * (cc_count - 1)) # f(x) =  7 + (7 * (x-1))
+            uncc_days = 7 * (cc_count + 1)
 
             uncc_datetime = datetime.datetime.now() + datetime.timedelta(days=uncc_days)
             uncc_date = uncc_datetime.strftime("%c")
@@ -81,6 +81,15 @@ class cwdb():
         diff = td.days, td.seconds // 3600, (td.seconds // 60) % 60
         
         return diff
+
+    def isCC(self, userid):
+
+        User = tinydb.Query()
+        q_res = self.cc_table.search(User.userid == userid)
+
+        if len(q_res) == 1:
+            return True
+        return False
 
 
     def checkUncc(self):
