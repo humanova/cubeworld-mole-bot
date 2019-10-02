@@ -23,16 +23,11 @@ server_id = '171682573662027776'
 cm_channel_id = '622529718612262933'
 c_channel_id = '493837739616108566'
 
+auto_cc_mode = False
 ################################
 
 Client = discord.Client()
 client = commands.Bot(command_prefix="!")
-
-
-async def send_long_msg(ch, msg):
-
-    for chunk in [msg[i:i+2000] for i in range(0, len(msg), 2000)]:
-        await client.send_message(ch, chunk)
 
 
 def isCountMod(user):
@@ -53,7 +48,7 @@ async def checkCC():
                 user = discord.utils.get(server.members, id = userid)
                 await client.remove_roles(user, cc_role)
 
-                embed = discord.Embed(title=" ", description=f"User <@{user.id}> got UNCC'd. (7 days since cc)", color=0x75df00)
+                embed = discord.Embed(title=" ", description=f"User <@{user.id}> got UNCC'd.", color=0x75df00)
                 embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
                 await client.send_message(discord.Object(id=cm_channel_id), embed=embed)
 
@@ -77,7 +72,28 @@ async def updateCCDatabase():
         cc_log += f"{mem.id}, {mem.name}#{mem.discriminator}\n"
 
     return cc_log
-    
+
+
+async def ccMember(member):
+
+    server = client.get_server(server_id)
+    role = discord.utils.get(server.roles, name="Can't Count")
+
+    try:
+        await client.add_roles(member, role)
+        db_user = db.ccUser(member.id, member.name)
+        penalty_days = db_user['penaltyDays']
+
+        embed = discord.Embed(title=" ", description=f"User <@{member.id}> successfully got CC'd. (Banned for `{penalty_days} days`)", color=0x75df00)
+        embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
+        await client.send_message(discord.Object(id=cm_channel_id), embed=embed)
+
+    except Exception as e:
+        print(e)
+        embed = discord.Embed(title=" ", description=f"Error while CC'ing <@{member.id}>", color=0xFF0000)
+        embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
+        await client.send_message(discord.Object(id=cm_channel_id), embed=embed)
+
 
 @client.event
 async def on_ready():
@@ -91,7 +107,7 @@ async def on_message(message):
 
     if not message.author.bot:
         
-        # tweet role mention command
+        #!tweet -- mention members with "Tweets" role
         if message.content == "!tweet" and message.author.server_permissions.manage_roles:
             
             role = get(message.server.roles, name="Tweets")
@@ -106,50 +122,23 @@ async def on_message(message):
             
             await client.delete_message(message)
 
-        # CC command
+        #!cc @mention , !cc userid -- give "Can't Count" role to member
         if message.content.startswith("!cc ") and message.channel.id == cm_channel_id:
 
             msg = message.content.split(" ")
-            role = discord.utils.get(message.server.roles, name="Can't Count")
-
+            
             # get user from msg mentions
             if not len(message.mentions) == 0:
                 user = message.mentions[0]
-                try:
-                    await client.add_roles(user, role)
-                    db_user = db.ccUser(user.id, user.name)
-                    penalty_days = db_user['penaltyDays']
-
-                    embed = discord.Embed(title=" ", description=f"User <@{user.id}> successfully got CC'd. (Banned for `{penalty_days} days`)", color=0x75df00)
-                    embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-                    await client.send_message(message.channel, embed=embed)
-
-                except Exception as e:
-                    print(e)
-                    embed = discord.Embed(title=" ", description=f"Error while CC'ing <@{user.id}>", color=0xFF0000)
-                    embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-                    await client.send_message(message.channel, embed=embed)
-
-
+                await ccMember(user)
+                
             # get user from user_id
             elif len(msg) == 2:
                 try:
                     user_id = msg[1]
                     user = discord.utils.get(message.server.members, id=user_id)
-                    try:
-                        await client.add_roles(user, role)
-                        db_user = db.ccUser(user.id, user.name)
-                        penalty_days = db_user['penaltyDays']
+                    await ccMember(user)
 
-                        embed = discord.Embed(title=" ", description=f"User <@{user.id}> successfully got CC'd. (Banned for `{penalty_days}` days)", color=0x75df00)
-                        embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-                        await client.send_message(message.channel, embed=embed)
-
-                    except Exception as e:
-                        print(e)
-                        embed = discord.Embed(title=" ", description=f"Error while CC'ing <@{user.id}>", color=0xFF0000)
-                        embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-                        await client.send_message(message.channel, embed=embed)
                 except:
                     embed = discord.Embed(title=" ", description=f"Couldn't find any user attached to given user_id : `{user_id}`", color=0xe5e500)
                     embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
@@ -159,7 +148,8 @@ async def on_message(message):
             else:
                 print(f"Command '{message.content}' has more than 1 argument.")
                 # no need to notify the channel ?..
-
+        
+        #!cclist -- upload cc'd users table from database
         if message.content == "!cclist" and message.channel.id == cm_channel_id:
             
             table = db.getCCTable()
@@ -176,6 +166,23 @@ async def on_message(message):
             log_url = await hastebin.post(cc_log)
             
             embed = discord.Embed(title=" ", description=f"CC Table Update : {log_url}", color=0xe5e500)
+            embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
+
+            await client.send_message(message.channel, embed=embed)
+        
+        #!ccauto 1/0 -- toggle auto-cc mode on/off
+        if message.content.startswith("!ccauto") and message.channel.id == cm_channel_id:
+
+            global auto_cc_mode
+            msg = message.content.split(" ")
+
+            if msg[1] == '1' or msg[1].upper() == 'TRUE':
+                auto_cc_mode = True
+
+            elif msg[1] == '0' or msg[1].upper() == 'FALSE':
+                auto_cc_mode = False
+
+            embed = discord.Embed(title=" ", description=f"Auto-CC is set to : {auto_cc_mode}", color=0xe5e500)
             embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
 
             await client.send_message(message.channel, embed=embed)
@@ -227,7 +234,6 @@ async def on_message(message):
                 await client.delete_channel(message.channel)
         
 
-
         # !addroom @mentions -- add mentioned members to room
         if message.content.startswith("!addroom ") and message.author.server_permissions.manage_channels:
             msg = message.content.split(" ")
@@ -261,6 +267,7 @@ async def on_message(message):
                     embed = discord.Embed(title="Commands", color=0xe5e500)
                     embed.add_field(name="cc", value="`!cc @user/userid` : give Can't Count role to user")
                     embed.add_field(name="cclist", value="`!cclist` : sends a list of CC'd users")
+                    embed.add_field(name="ccauto", value="`!ccauto true/false` : toggle auto-cc mode on/off")
                     embed.add_field(name="croom", value="`!croom room-name @mentions` : create a temp room and add mentioned")
                     embed.add_field(name="droom", value="`!droom` : delete current temp room")
                     embed.add_field(name="addroom", value="`!addroom @mentioned` : add mentioned user to current room")
@@ -304,6 +311,9 @@ async def on_message_delete(message):
 
             await client.send_message(discord.Object(id=cm_channel_id), embed=embed)
 
+            if auto_cc_mode:
+                await ccMember(message.author)
+
 
 @client.event
 async def on_message_edit(old_message, message):
@@ -321,6 +331,9 @@ async def on_message_edit(old_message, message):
             embed.set_footer(text=f"Is Count Mod : {str(isCountMod(message.author))}")
 
             await client.send_message(discord.Object(id=cm_channel_id), embed=embed)
+
+            if auto_cc_mode:
+                await ccMember(message.author)
 
 token = os.environ['BOT_TOKEN']
 client.run(token)
