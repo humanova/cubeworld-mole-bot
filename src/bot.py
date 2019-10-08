@@ -52,6 +52,9 @@ async def checkCC():
                 embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
                 await client.send_message(discord.Object(id=cm_channel_id), embed=embed)
 
+                # send_message API limit sleep (in case of uncc'ing more than 30 people)
+                await asyncio.sleep(1)
+
         # sleep for 1 hour
         await asyncio.sleep(3600)
 
