@@ -281,7 +281,7 @@ async def on_message(message):
                 else:
                     v_channel_count += 1
             
-            embed = discord.Embed(title=srv.name, color=0x0DCFA0)
+            embed = discord.Embed(title=' ', color=0x0DCFA0)
             embed.set_author(name=srv.name, icon_url=srv.icon_url)
             embed.add_field(name="Owner", value=f"{str(srv.owner)}", inline=True)
             embed.add_field(name="Region", value=srv.region, inline=True)
