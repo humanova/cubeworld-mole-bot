@@ -46,14 +46,15 @@ async def checkCC():
             for userid in uncc_list:
 
                 user = discord.utils.get(server.members, id = userid)
-                await client.remove_roles(user, cc_role)
+                if not user == None:
+                    await client.remove_roles(user, cc_role)
 
-                embed = discord.Embed(title=" ", description=f"User <@{user.id}> got UNCC'd.", color=0x75df00)
-                embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
-                await client.send_message(discord.Object(id=cm_channel_id), embed=embed)
+                    embed = discord.Embed(title=" ", description=f"User <@{user.id}> got UNCC'd.", color=0x75df00)
+                    embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
+                    await client.send_message(discord.Object(id=cm_channel_id), embed=embed)
 
-                # send_message API limit sleep (in case of uncc'ing more than 30 people)
-                await asyncio.sleep(1)
+                    # send_message API limit sleep (in case of uncc'ing more than 30 people)
+                    await asyncio.sleep(1)
 
         # sleep for 1 hour
         await asyncio.sleep(3600)
