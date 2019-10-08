@@ -261,7 +261,7 @@ async def on_message(message):
                 for member in message.mentions:
                     await client.remove_roles(member, role)
 
-        # !info -- show member count info
+        # !serverinfo -- show server info
         if message.content == "!info":
             
             srv = message.server
@@ -281,16 +281,17 @@ async def on_message(message):
                 else:
                     v_channel_count += 1
             
-            embed = discord.Embed(title=srv.name, color=0xe5e500)
+            embed = discord.Embed(title=srv.name, color=0x0DCFA0)
             embed.set_author(name=srv.name, icon_url=srv.icon_url)
             embed.add_field(name="Owner", value=f"{str(srv.owner)}", inline=True)
             embed.add_field(name="Region", value=srv.region, inline=True)
             embed.add_field(name="Text Channels",value=str(t_channel_count), inline=True)
             embed.add_field(name="Voice Channels",value=str(v_channel_count), inline=True)
             embed.add_field(name="Members", value=mem_count, inline=True)
+            embed.add_field(name="Roles",value=str(len(srv.roles)), inline=True)
             embed.add_field(name="Humans",value=human_count, inline=True)
             embed.add_field(name="Bots",value=bot_count, inline=True)
-            embed.add_field(name="Roles",value=str(len(srv.roles)), inline=True)
+        
             embed.set_footer(text=f"ID: {message.server.id} | Created at•18/04/2016")
             await client.send_message(message.channel,embed=embed)
 
@@ -308,7 +309,7 @@ async def on_message(message):
                     embed.add_field(name="droom", value="`!droom` : delete current temp room")
                     embed.add_field(name="addroom", value="`!addroom @mentioned` : add mentioned user to current room")
                     embed.add_field(name="removeroom", value="`!removeroom @mentioned` : remove mentioned user from current room")
-                    embed.add_field(name="info", value="`!members` : sends server info")
+                    embed.add_field(name="serverinfo", value="`!members` : sends server info")
                     embed.add_field(name="tweet", value="`!tweet` : mention Tweets role")
                     
                     embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
