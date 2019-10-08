@@ -262,7 +262,7 @@ async def on_message(message):
                     await client.remove_roles(member, role)
 
         # !serverinfo -- show server info
-        if message.content == "!info":
+        if message.content == "!serverinfo":
             
             srv = message.server
             mem_count = srv.member_count
