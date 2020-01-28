@@ -142,7 +142,7 @@ class cwdb():
     def getCCTable(self):
 
         User = tinydb.Query()
-        q_res = self.cc_table.search(User.isCC == True and User.is_perm == True)
+        q_res = self.cc_table.search(User.isCC == True or User.is_perm == True)
 
         cc_users = [[0 for x in range(3)] for y in range(len(q_res))] 
         for idx, mem in enumerate(q_res):
