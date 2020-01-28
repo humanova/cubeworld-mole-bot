@@ -88,7 +88,13 @@ async def ccMember(member, is_perm=False):
         db_user = db.ccUser(member.id, member.name, is_perm)
         penalty_days = db_user['penaltyDays']
 
-        embed = discord.Embed(title=" ", description=f"User <@{member.id}> successfully got CC'd. (Banned for `{penalty_days} days`)", color=0x75df00)
+        ban_description = str()
+        if is_perm:
+            ban_description = f"User <@{member.id}> successfully got CC'd. (perm ban)"
+        else:
+            ban_description = f"User <@{member.id}> successfully got CC'd. (Banned for `{penalty_days} days`)"
+
+        embed = discord.Embed(title=" ", description=ban_description, color=0x75df00)
         embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
         await client.send_message(discord.Object(id=cm_channel_id), embed=embed)
 
