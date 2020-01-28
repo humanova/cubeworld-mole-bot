@@ -12,7 +12,7 @@ class cwdb():
         self.cc_table = tinydb.TinyDB('db/cc-database.json')
 
 
-    def ccUser(self, userid, username):
+    def ccUser(self, userid, username, is_perm=False):
         
         User = tinydb.Query()
         q_res = self.cc_table.search(User.userid == userid)
@@ -30,6 +30,7 @@ class cwdb():
                 'userid' : userid,
                 'username' : username,
                 'isCC' : True,
+                'is_perm' : is_perm,
                 'ccCount' : 1,
                 'penaltyDays' : 7,
                 'cc_date' : cc_date,
@@ -50,6 +51,7 @@ class cwdb():
                 'userid' : userid,
                 'username' : username,
                 'isCC' : True,
+                'is_perm' : is_perm,
                 'ccCount' : q_res[0]['ccCount'] + 1,
                 'penaltyDays' : uncc_days,
                 'cc_date' : cc_date,
@@ -102,7 +104,7 @@ class cwdb():
 
         for mem in q_res:
 
-            if curr_timestamp > mem['uncc_timestamp']: 
+            if mem['is_perm'] is False and curr_timestamp > mem['uncc_timestamp']: 
                 
                 uncc_list.append(mem['userid'])
                 self.unccUser(mem['userid'])
@@ -140,7 +142,7 @@ class cwdb():
     def getCCTable(self):
 
         User = tinydb.Query()
-        q_res = self.cc_table.search(User.isCC == True)
+        q_res = self.cc_table.search(User.isCC == True and User.is_perm == True)
 
         cc_users = [[0 for x in range(3)] for y in range(len(q_res))] 
         for idx, mem in enumerate(q_res):
@@ -155,6 +157,6 @@ class cwdb():
 
             cc_users.append(user)
         
-        table = tabulate(cc_users, ["userid", "username", "time_left"], tablefmt="ortabgtbl")
+        table = tabulate(cc_users, ["userid", "username", "time_left", "is_perm"], tablefmt="ortabgtbl")
 
         return table

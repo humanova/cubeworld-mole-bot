@@ -78,14 +78,14 @@ async def updateCCDatabase():
     return cc_log
 
 
-async def ccMember(member):
+async def ccMember(member, is_perm=False):
 
     server = client.get_server(server_id)
     role = discord.utils.get(server.roles, name="Can't Count")
 
     try:
         await client.add_roles(member, role)
-        db_user = db.ccUser(member.id, member.name)
+        db_user = db.ccUser(member.id, member.name, is_perm)
         penalty_days = db_user['penaltyDays']
 
         embed = discord.Embed(title=" ", description=f"User <@{member.id}> successfully got CC'd. (Banned for `{penalty_days} days`)", color=0x75df00)
@@ -127,21 +127,25 @@ async def on_message(message):
             await client.delete_message(message)
 
         #!cc @mention , !cc userid -- give "Can't Count" role to member
-        if message.content.startswith("!cc ") and message.channel.id == cm_channel_id:
+        if (message.content.startswith("!cc ") or message.content.startswith("!ccperm ")) and message.channel.id == cm_channel_id:
 
             msg = message.content.split(" ")
             
+            is_perm = False
+            if msg[0] == "!ccperm":
+                is_perm = True
+
             # get user from msg mentions
             if not len(message.mentions) == 0:
                 user = message.mentions[0]
-                await ccMember(user)
+                await ccMember(user, is_perm)
                 
             # get user from user_id
             elif len(msg) == 2:
                 try:
                     user_id = msg[1]
                     user = discord.utils.get(message.server.members, id=user_id)
-                    await ccMember(user)
+                    await ccMember(user, is_perm)
 
                 except:
                     embed = discord.Embed(title=" ", description=f"Couldn't find any user attached to given user_id : `{user_id}`", color=0xe5e500)
