@@ -154,6 +154,7 @@ class cwdb():
             cc_users[idx][0] = mem['userid']
             cc_users[idx][1] = mem['username']
             cc_users[idx][2] = time_left_str
+            cc_users[idx][3] = mem['is_perm']
 
             cc_users.append(user)
         

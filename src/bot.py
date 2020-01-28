@@ -306,7 +306,7 @@ async def on_message(message):
 
                 if message.content == "!cmds":
                     embed = discord.Embed(title="Commands", color=0xe5e500)
-                    embed.add_field(name="cc", value="`!cc @user/userid` : give Can't Count role to user")
+                    embed.add_field(name="cc,ccperm", value="`!cc @user/userid` : give Can't Count role to user")
                     embed.add_field(name="cclist", value="`!cclist` : sends a list of CC'd users")
                     embed.add_field(name="ccauto", value="`!ccauto true/false` : toggle auto-cc mode on/off")
                     embed.add_field(name="croom", value="`!croom room-name @mentions` : create a temp room and add mentioned")
