@@ -336,10 +336,10 @@ async def on_member_join(member):
 
         if db.isCC(member.id):
 
-            db_user = db.ccUser(member.id, member.name)
-            penalty_days = db_user['penaltyDays']
+            await ccMember(member, is_perm=False)
+            cc_time = db.getCCTimeLeft(member.id)
 
-            embed = discord.Embed(title=" ", description=f"[REJOINED SERVER] User <@{member.id}> successfully got CC'd. (Banned for `{penalty_days}` days)", color=0x75df00)
+            embed = discord.Embed(title=" ", description=f"[REJOINED SERVER] User <@{member.id}> successfully got CC'd. (Banned for `{cc_time}` days)", color=0x75df00)
             embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
             await client.send_message(discord.Object(id=cm_channel_id), embed=embed)
 
