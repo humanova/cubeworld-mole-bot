@@ -22,6 +22,8 @@ env_set._set()
 server_id = '171682573662027776'
 cm_channel_id = '622529718612262933'
 c_channel_id = '493837739616108566'
+cm_role_id = '507794225610358797'
+cc_role_id = '505783639380852748'
 
 auto_cc_mode = False
 ################################
@@ -31,7 +33,7 @@ client = commands.Bot(command_prefix="!")
 
 
 def isCountMod(user):
-    if 'Count Mod' in [y.name for y in user.roles]:
+    if cm_role_id in [y.id for y in user.roles]:
         return True
     return False
 
@@ -39,7 +41,7 @@ def isCountMod(user):
 async def checkCC():
 
     server = client.get_server(server_id)
-    cc_role = discord.utils.get(server.roles, name="Can't Count")
+    cc_role = discord.utils.get(server.roles, id=cc_role_id)
     while not client.is_closed:
         uncc_list = db.checkUncc()
         if not len(uncc_list) == 0:
@@ -66,7 +68,7 @@ async def updateCCDatabase():
     cc_members = []
 
     for member in server.members:
-        if "Can't Count" in [y.name for y in member.roles]:
+        if cc_role_id in [y.id for y in member.roles]:
             cc_members.append(member)
     
     cc_members = db.updateCCTable(cc_members)
@@ -81,7 +83,7 @@ async def updateCCDatabase():
 async def ccMember(member, is_perm=False):
 
     server = client.get_server(server_id)
-    role = discord.utils.get(server.roles, name="Can't Count")
+    role = discord.utils.get(server.roles, id=cc_role_id)
 
     try:
         await client.add_roles(member, role)
