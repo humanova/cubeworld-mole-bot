@@ -91,7 +91,7 @@ async def ccMember(member, is_perm=False, days=None):
         if not days:
             db_user = db.ccUser(member.id, member.name, is_perm)
         else:
-            db_user = db.ccUserDays(member.id, member.name, is_perm, days=days)
+            db_user = db.ccUserDays(member.id, member.name, days=days)
 
         penalty_days = db_user['penaltyDays']
 
