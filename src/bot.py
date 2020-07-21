@@ -148,22 +148,19 @@ async def on_message(message):
             if msg[0] == "!ccperm":
                 is_perm = True
             if msg[0] == "!ccdays":
-                ccdays = int(msg[1])
+                ccdays = int(msg[2])
             
             # get user from msg mentions
             if not len(message.mentions) == 0:
                 user = message.mentions[0]
-                await ccMember(user, is_perm)
+                await ccMember(user, is_perm=is_perm, day=ccdays)
                 
             # get user from user_id
-            elif len(msg) == 2:
+            elif len(msg) >= 2:
                 try:
                     user_id = msg[1]
                     user = discord.utils.get(message.server.members, id=user_id)
-                    if not ccdays:
-                        await ccMember(user, is_perm)
-                    else:
-                        await ccMember(user, days=ccdays)
+                    await ccMember(user, is_perm=is_perm, days=ccdays)
 
                 except:
                     embed = discord.Embed(title=" ", description=f"Couldn't find any user attached to given user_id : `{user_id}`", color=0xe5e500)
