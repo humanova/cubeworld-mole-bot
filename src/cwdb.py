@@ -11,7 +11,6 @@ class cwdb():
 
         self.cc_table = tinydb.TinyDB('db/cc-database.json')
 
-
     def ccUser(self, userid, username, is_perm=False):
         
         User = tinydb.Query()
@@ -61,7 +60,52 @@ class cwdb():
                 }, User.userid == userid)
 
         return self.cc_table.search(User.userid == userid)[0]
+    
+    def ccUserDays(self, userid, username, days):
+        
+        User = tinydb.Query()
+        q_res = self.cc_table.search(User.userid == userid)
 
+        cc_datetime = datetime.datetime.now()
+        uncc_datetime =  datetime.datetime.now() + datetime.timedelta(days=days)
+        cc_date = cc_datetime.strftime("%c")
+        uncc_date = uncc_datetime.strftime("%c")
+        cc_timestamp = cc_datetime.timestamp()
+        uncc_timestamp = uncc_datetime.timestamp()
+
+        if len(q_res) == 0:
+
+            self.cc_table.insert({
+                'userid' : userid,
+                'username' : username,
+                'isCC' : True,
+                'is_perm' : False,
+                'ccCount' : 1,
+                'penaltyDays' : days,
+                'cc_date' : cc_date,
+                'uncc_date' : uncc_date,
+                'cc_timestamp' : cc_timestamp,
+                'uncc_timestamp' : uncc_timestamp
+                })
+        else:   
+            cc_count = q_res[0]['ccCount']
+
+            uncc_datetime = datetime.datetime.now() + datetime.timedelta(days=days)
+            uncc_date = uncc_datetime.strftime("%c")
+            uncc_timestamp = uncc_datetime.timestamp()
+
+            self.cc_table.upsert({
+                'userid' : userid,
+                'username' : username,
+                'isCC' : True,
+                'is_perm' : False,
+                'ccCount' : q_res[0]['ccCount'] + 1,
+                'penaltyDays' : days,
+                'cc_date' : cc_date,
+                'uncc_date' : uncc_date,
+                'cc_timestamp' : cc_timestamp,
+                'uncc_timestamp' : uncc_timestamp
+                }, User.userid == userid)
 
     def unccUser(self, userid):
 

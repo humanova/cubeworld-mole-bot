@@ -80,14 +80,19 @@ async def updateCCDatabase():
     return cc_log
 
 
-async def ccMember(member, is_perm=False):
+async def ccMember(member, is_perm=False, days=None):
 
     server = client.get_server(server_id)
     role = discord.utils.get(server.roles, id=cc_role_id)
 
     try:
         await client.add_roles(member, role)
-        db_user = db.ccUser(member.id, member.name, is_perm)
+        db_user = None
+        if not days:
+            db_user = db.ccUser(member.id, member.name, is_perm)
+        else:
+            db_user = db.ccUserDays(member.id, member.name, is_perm, days=days)
+
         penalty_days = db_user['penaltyDays']
 
         ban_description = str()
@@ -135,14 +140,16 @@ async def on_message(message):
             await client.delete_message(message)
 
         #!cc @mention , !cc userid -- give "Can't Count" role to member
-        if (message.content.startswith("!cc ") or message.content.startswith("!ccperm ")) and message.channel.id == cm_channel_id:
+        if (message.content.startswith("!cc ") or message.content.startswith("!ccperm ") or message.content.startswith("!ccdays ")) and message.channel.id == cm_channel_id:
 
             msg = message.content.split(" ")
-            
+            ccdays = None
             is_perm = False
             if msg[0] == "!ccperm":
                 is_perm = True
-
+            if msg[0] == "!ccdays":
+                ccdays = int(msg[1])
+            
             # get user from msg mentions
             if not len(message.mentions) == 0:
                 user = message.mentions[0]
@@ -153,7 +160,10 @@ async def on_message(message):
                 try:
                     user_id = msg[1]
                     user = discord.utils.get(message.server.members, id=user_id)
-                    await ccMember(user, is_perm)
+                    if not ccdays:
+                        await ccMember(user, is_perm)
+                    else:
+                        await ccMember(user, days=ccdays)
 
                 except:
                     embed = discord.Embed(title=" ", description=f"Couldn't find any user attached to given user_id : `{user_id}`", color=0xe5e500)
