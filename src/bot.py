@@ -153,7 +153,7 @@ async def on_message(message):
             # get user from msg mentions
             if not len(message.mentions) == 0:
                 user = message.mentions[0]
-                await ccMember(user, is_perm=is_perm, day=ccdays)
+                await ccMember(user, is_perm=is_perm, days=ccdays)
                 
             # get user from user_id
             elif len(msg) >= 2:
