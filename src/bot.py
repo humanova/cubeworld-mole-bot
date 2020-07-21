@@ -328,8 +328,8 @@ async def on_message(message):
                     embed.add_field(name="droom", value="`!droom` : delete current temp room")
                     embed.add_field(name="addroom", value="`!addroom @mentioned` : add mentioned user to current room")
                     embed.add_field(name="removeroom", value="`!removeroom @mentioned` : remove mentioned user from current room")
-                    embed.add_field(name="serverinfo", value="`!members` : sends server info")
-                    embed.add_field(name="tweet", value="`!tweet` : mention Tweets role")
+                    embed.add_field(name="serverinfo", value="`!serverinfo` : sends server info")
+                    embed.add_field(name="tweet", value="`!tweet` : mentions Tweets role")
                     
                     embed.set_author(name=client.user.name, icon_url=client.user.avatar_url)
                     await client.send_message(message.channel, embed=embed)
