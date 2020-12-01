@@ -250,7 +250,7 @@ class Counting(commands.Cog):
     @commands.Cog.listener()
     async def on_member_join(self, member):
         if self.is_cc(member.id):
-            usr = self.get_user()
+            usr = self.get_user(member.id)
             usr = await self.cc_user(member.id, username=str(member), days=usr['penaltyDays']+7, is_perm=False)
             embed = discord.Embed(title=" ", description=f"[REJOINED SERVER] User <@{member.id}> successfully got CC'd."
                                                          f" (Banned for `{usr['penaltyDays']}` days)", color=0x75df00)
