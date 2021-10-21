@@ -83,6 +83,9 @@ class Counting(commands.Cog):
         member = self.guild.get_member(user_id=int(user_id))
 
         cc_datetime = datetime.datetime.now()
+        # force stack if '!cc' is used and uncc_ts > current_ts
+        add = True if q_res and q_res[0]['uncc_timestamp'] > datetime.datetime.now().timestamp() else False
+
         uncc_datetime = datetime.datetime.fromtimestamp(q_res[0]['uncc_timestamp']) if add and q_res else datetime.datetime.now()
         uncc_datetime += datetime.timedelta(days=days)
 
