@@ -83,7 +83,7 @@ class Counting(commands.Cog):
         member = self.guild.get_member(user_id=int(user_id))
 
         cc_datetime = datetime.datetime.now()
-        uncc_datetime = datetime.fromtimestamp(q_res[0]['uncc_timestamp']) if add and q_res else datetime.datetime.now()
+        uncc_datetime = datetime.datetime.fromtimestamp(q_res[0]['uncc_timestamp']) if add and q_res else datetime.datetime.now()
         uncc_datetime = datetime.timedelta(days=days)
 
         user_data = {'userid': user_id,
