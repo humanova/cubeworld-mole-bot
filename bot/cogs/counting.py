@@ -77,13 +77,14 @@ class Counting(commands.Cog):
         log += "\n".join([f"{mem.id}, {str(mem)}" for mem in not_cced_db_members])
         return log
 
-    async def cc_user(self, user_id, username: str, days: int=7, is_perm=False):
+    async def cc_user(self, user_id, username: str, days: int=7, is_perm=False, add=False):
         user = tinydb.Query()
         q_res = self.cc_table.search(user.userid == user_id)
         member = self.guild.get_member(user_id=int(user_id))
 
         cc_datetime = datetime.datetime.now()
-        uncc_datetime = datetime.datetime.now() + datetime.timedelta(days=days)
+        uncc_datetime = datetime.fromtimestamp(q_res[0]['uncc_timestamp']) if add and q_res else datetime.datetime.now()
+        uncc_datetime = datetime.timedelta(days=days)
 
         user_data = {'userid': user_id,
                      'username': username,
@@ -184,6 +185,17 @@ class Counting(commands.Cog):
         """ cc user """
         try:
             usr = await self.cc_user(user_id=member.id, username=str(member), days=duration)
+            await self.mod_channel.send(embed=self.get_cc_embed(member, usr['penaltyDays']))
+        except Exception as e:
+            print(f"error in cc {e}")
+            await  self.mod_channel.send(embed=self.get_cc_error_embed(member))
+
+    @commands.command()
+    @commands.check(permissions.is_count_mod)
+    async def ccadd(self, ctx, member: discord.Member, duration=7):
+        """ cc user (add) """
+        try:
+            usr = await self.cc_user(user_id=member.id, username=str(member), days=duration, add=True)
             await self.mod_channel.send(embed=self.get_cc_embed(member, usr['penaltyDays']))
         except Exception as e:
             print(f"error in cc {e}")
